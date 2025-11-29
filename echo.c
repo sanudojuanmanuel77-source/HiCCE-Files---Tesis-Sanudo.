@@ -101,21 +101,21 @@ void XADC_sending(void *param){
 	while(1){
 
 		if (!primed) {
-		        // 1) PRIMING: arm· y recibÌ un batch, pero NO lo mandes al cliente
+		        // 1) PRIMING: arm√° y recib√≠ un batch, pero NO lo mandes al cliente
 		        int rc = ReceiveData();                 // intenta 1
 		        if (rc != XST_SUCCESS) {
 		            xil_printf("[prime] rearmando S2MM...\r\n");
 		            vTaskDelay(pdMS_TO_TICKS(5));       // breve respiro
 		            rc = ReceiveData();                 // intenta 2 (sin cerrar socket)
 		            if (rc != XST_SUCCESS) {
-		                xil_printf("[prime] fallÛ 2 veces, cerrando\r\n");
+		                xil_printf("[prime] fall√≥ 2 veces, cerrando\r\n");
 		                close(sock);
 		                vTaskDelete(NULL);
 		            }
 		        }
 		        primed = true;
-		       // xil_printf("NO FUIMO PAL LOBBY\r\n");// descartamos este primer lote y seguimos
-		        continue;               // volvemos al while: ahora sÌ a flujo normal
+		      
+		        continue;               // volvemos al while: ahora s√≠ a flujo normal
 		    }
 
 
@@ -126,10 +126,7 @@ void XADC_sending(void *param){
 	if(ReceiveData() == XST_FAILURE){ //como esta en modo continuo de adquisicion... ya esta tomando todo el tiempo una mumestra, es cuestion de sacarle 1000 muestras que se producen ahi, y la interfaz axi 4 stream del xadc wizard se va a mimir.
 
 
-		 //   for (int i=0; i<SAMPLE_COUNT; ++i) convertedData[i] = 1.234f;
-		   // send(sock, convertedData, sizeof(convertedData), 0);
-		    //continue;
-
+		
 
 		xil_printf("Error al recibir datos del XADC \r \n");
 		close(sock);
@@ -137,7 +134,6 @@ void XADC_sending(void *param){
 	}
 
 
-//	DumpU16(DataBuffer, SAMPLE_COUNT+8);
 	u16 *payload = &DataBuffer;
 
 
@@ -152,46 +148,24 @@ void XADC_sending(void *param){
 	for(int n=0;n<SAMPLE_COUNT;n++){
 		TxBuffer[n]=Xadc_RawToVoltageVPVN(TxBuffer[n]);
 	}
-	//float *payload = &DataBuffer[4];
-	//DumpU16(payload, SAMPLE_COUNT);                 // NO +8
+	
 
 
 
 
 
 
-	//for(int m= 0; m<SAMPLE_COUNT; m++){
-		//payload[m] = payload[m]*200;
-//	}
+
 
 
 	//xil_printf("Fin del DMA \r \n");
 	nwrote = send(sock, TxBuffer, SAMPLE_COUNT*sizeof(int32_t), 0);
-	//Convierte los datos crudos del XADC a voltaje
-/*	for (int i = 0; i < SAMPLE_COUNT; i++){
 
-		convertedData[i] = Xadc_RawToVoltageVPVN(DataBuffer[i]); // Obtenemos el valor de voltaje de MUX_OUT de cada intan en cada moemento...
-
-	} */
-//	DumpU16(convertedData, SAMPLE_COUNT);
-
-	//Filtramos Baseline y off set. divisior por 200 y convertivimos a unidades de microvolts..
-
-/*	if(Filter_BaseLine_G200(convertedData)!=0){
-			xil_printf("Error al filtrar datos");
-			close(sock);
-			vTaskDelete(NULL);
-	} else { xil_printf("filtrado con exito \r");} */
-
-	//Envia los datos convertidos al cliente a traves de lwIP
-	//nwrote= send(sock,convertedData,sizeof(convertedData),0);
-	//nwrote= send(sock,DataBuffer,sizeof(convertedData),0);
-	//Verifica si la transmision fue exitosa
 	if(nwrote < 0){
 
 		xil_printf("Error al enviar datos al cliente\n");
 
-		//SE PERDIO LA CONEXI”N
+		//SE PERDIO LA CONEXI√ìN
 
 			XGpioPs_WritePin( &GpioInstance, 54, 0 ); //CONN A CERO, TODO A IDLE, RST INTERNO...
 		  	g_seeded = 0;
@@ -199,19 +173,11 @@ void XADC_sending(void *param){
 		  	xil_printf("Cerrando conexion\n");
 		  	vTaskDelete(NULL);
 
-	} /*else {
-		xil_printf("Datos enviados correctamente (%d bytes) \n",nwrote);
-	} */
-
-	//xil_printf("Se viene el delay papaaa \r \n");
-
-	//vTaskDelay(5);
-
-	//taskYIELD();
+		} 
 
 	}
 
-	//PREGUNTAMOS øesta abierta la conexion? si, repetir todo lo anterior... NO? CONN A 0, flag filtro a 0, cerrar sock, elimintar tarea
+	
 
 
 
@@ -287,5 +253,6 @@ void echo_application_thread()
 		}
 	   }
 	}
+
 
 
