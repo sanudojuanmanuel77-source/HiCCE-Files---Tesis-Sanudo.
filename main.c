@@ -17,16 +17,16 @@ void echo_application_thread(void *);
 void XADC_sending(void *param);
 void lwip_init();
 
-#define SERVER_ADDR "192.168.1.10"  // Direcc�n IP del servidor en formato de cadena
+#define SERVER_ADDR "192.168.1.10"  // Direccón IP del servidor en formato de cadena
 #define SERVER_PORT 7           // Puerto del servidor
 
 #define THREAD_STACKSIZE 2048 //2048??
 
-#define NCHAN   128 // N�mero de canales emitidos.
+#define NCHAN   128 // Número de canales emitidos.
 #define MICROVOLTS 1e6f // Conversion a microvoltios del dato a enviar.
 #define GAIN 200		// Ganancia del Intan RHA2132.
 
-#define SAMPLE_COUNT 512 //N�mero de muestras enviadas... M�ximo 2^25 = 33.554.431 //Definido en el DMA...
+#define SAMPLE_COUNT 512 //Número de muestras enviadas... Máximo 2^25 = 33.554.431 //Definido en el DMA...
 
 #define LSB 38.15f
 
@@ -59,7 +59,7 @@ float fs_hz = 15394;  //SPI FSM 2030 ns entre muestras... TEST BENCH... FLANCO E
 float A,B; //Filter HPF  Parameters.
 
 XGpioPs GpioInstance; //Instancia PS GPIO
-static XAxiDma AxiDmaInstance; //Instancia AXI DMA  "la forma sencilla" que brinda Xilinx de configurar los perfifericos o recuros del Zynq , gracias al BSP, y los drivers que pone a disposici�n.
+static XAxiDma AxiDmaInstance; //Instancia AXI DMA  "la forma sencilla" que brinda Xilinx de configurar los perfifericos o recuros del Zynq , gracias al BSP, y los drivers que pone a disposición.
 
 
 
@@ -100,7 +100,7 @@ static int GPIOInitialize()
 		return XST_FAILURE; // Devuelve error si no le fue posible inicialiar el GPIO
 	}
 
-	/*Se inicializa el GPIO. Sera la seÃ±al CONN  de la FSM SPI. indicara si hay o no conexion al servidor a toda la logida de adquisicion de datos de la PL
+	/*Se inicializa el GPIO. Sera la seÃƒÂ±al CONN  de la FSM SPI. indicara si hay o no conexion al servidor a toda la logida de adquisicion de datos de la PL
 	 * mediante el PIN 54 del GPIO */
 
 
@@ -132,7 +132,7 @@ float Xadc_RawToVoltageVPVN(u16 RawData)
 								//---> CALCULO DE ENOB...
 	//const float VREF = 2.5f;
 	//return ((float)RawData * ( VREF /65536.0)); //Convierte el valor digital a voltaje. 1 LSB equivale a 2,5V/65536 .El rango de MUX_OUT va de (2,235V  a 235 mV) +5 mv en Intan y -5 mv En intan.
-												// Un bit equivale a 38,14 micro volt EN TEORÃ�A. hay que dividir por 200 de amplificaion original...  190 nV ?? --> calcular/obtener --> ENOB.
+												// Un bit equivale a 38,14 micro volt EN TEORIA. hay que dividir por 200 de amplificaion original...  190 nV ?? --> calcular/obtener --> ENOB.
 	//return ((float)RawData * LSB);
 
 	const u32 VREF = 2500000;
@@ -197,7 +197,7 @@ struct netif *echo_netif;
 
 static int DMAInitialize()
 {
-	XAxiDma_Config *cfgptr; //Puntero para la configuraciÃ³n del AXI DMA
+	XAxiDma_Config *cfgptr; //Puntero para la configuraciÃƒÂ³n del AXI DMA
 	XStatus Status;			//Variable para menejar el estado
 
 	//Obtiene la configuracion del AXI DMA dede xparameters.h
@@ -206,7 +206,7 @@ static int DMAInitialize()
 	if(cfgptr == NULL){
 
 		xil_printf("XAxiDma_LookupConfig failed! terminatig\n");
-		return XST_FAILURE; //Devuelve error si no encunetra la configuraciÃ³n
+		return XST_FAILURE; //Devuelve error si no encunetra la configuraciÃƒÂ³n
 	}
 
 	//Inicializar el AXI DMA con la configuracion obtenida
@@ -214,7 +214,7 @@ static int DMAInitialize()
 
 	if (Status != XST_SUCCESS){
 		xil_printf("XAxiDma_CfgInitialize failed! terminating\n");
-		return XST_FAILURE; //Devuelve error si la inicialiaciÃ³n falla
+		return XST_FAILURE; //Devuelve error si la inicialiaciÃƒÂ³n falla
 	}
 
 	//Desactiva las interrupciones del DMA, ya que no se usan
@@ -278,7 +278,7 @@ int ReceiveData(void)
     while (XAxiDma_Busy(&AxiDmaInstance, XAXIDMA_DEVICE_TO_DMA)) {
         // si tu fuente AXIS no manda TLAST, esto nunca va a salir
         if ((xTaskGetTickCount() - t0) > pdMS_TO_TICKS(200)) {
-            xil_printf("[RX][TO] DMA no complet� en 200 ms\r\n");
+            xil_printf("[RX][TO] DMA no completó en 200 ms\r\n");
             dump_s2mm_status("TIMEOUT");
 
             // Limpio flags; si hay error, reset canal
@@ -294,7 +294,7 @@ int ReceiveData(void)
         //taskYIELD();
     }
 
-    // 4) Invalidate para poder leer lo que escribi� el DMA
+    // 4) Invalidate para poder leer lo que escribió el DMA
     Xil_DCacheInvalidateRange((UINTPTR)DataBuffer, RX_BYTES);
 
 
@@ -325,7 +325,7 @@ print_ip_settings(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
 
 int main()
 {
-	//// Crea una tarea para manejar la red y sus subsistemas, ademÃ¡s  la tarea que crea e inicia el servidor en modo escucha.
+	//// Crea una tarea para manejar la red y sus subsistemas, ademÃƒÂ¡s  la tarea que crea e inicia el servidor en modo escucha.
 	sys_thread_new("NW_THREAD", (void(*)(void*))network_thread, 0,
 	                THREAD_STACKSIZE,
 	                DEFAULT_THREAD_PRIO);
@@ -367,7 +367,7 @@ void network_thread(void *p)
     /* Imprime los parametros dados */
 
 
-    //AÃ±ade la interfaz de red a la netif_list , y la configura como default.
+    //AÃƒÂ±ade la interfaz de red a la netif_list , y la configura como default.
     if (!xemac_add(netif, &ipaddr, &netmask, &gw, mac_ethernet_address, PLATFORM_EMAC_BASEADDR)) {
 	xil_printf("Error adding N/W interface\r\n");
 	return;
@@ -414,6 +414,7 @@ void network_thread(void *p)
 
     return;
 }
+
 
 
 
